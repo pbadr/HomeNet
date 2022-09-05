@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">HomeNet</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="set_home">Set your home</string>
+    <string name="track">Track</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoibWVpbmJhZHIiLCJhIjoiY2w3aHh1YjdwMGl6YjNvb2E1dng5aGdvZSJ9.0o-GQF-thdVp2tRA8De7yQ</string>
+    <string name="home_location">home_location</string>
+</resources>
