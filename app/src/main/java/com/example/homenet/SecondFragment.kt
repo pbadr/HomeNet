@@ -16,8 +16,6 @@ import com.example.homenet.databinding.FragmentSecondBinding
 import com.example.homenet.services.LocationService
 import com.example.homenet.utils.Util
 import com.mapbox.android.core.location.*
-import com.mapbox.android.core.permissions.PermissionsListener
-import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -46,8 +44,6 @@ class SecondFragment : Fragment() {
 
   private lateinit var file: File
 
-  private lateinit var permissionsManager: PermissionsManager
-
   private var mapView: MapView? = null
   private lateinit var annotationApi: AnnotationPlugin
   private lateinit var pointAnnotationManager: PointAnnotationManager
@@ -74,8 +70,7 @@ class SecondFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
 
     mapView = binding.mapView
-    annotationApi = mapView?.annotations!!
-    pointAnnotationManager = annotationApi.createPointAnnotationManager()
+    file = File(context?.filesDir, getString(R.string.home_location))
 
     binding.buttonSecond.setOnClickListener {
       Intent(activity, LocationService::class.java).also { intent ->
@@ -93,32 +88,13 @@ class SecondFragment : Fragment() {
 
       return
     }
-
-    if (PermissionsManager.areLocationPermissionsGranted(this.context)) {
-      onMapReady()
-    } else {
-      permissionsManager = PermissionsManager(object : PermissionsListener {
-        override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-          Toast.makeText(
-            activity, "You need to accept location permissions.",
-            Toast.LENGTH_SHORT
-          ).show()
-        }
-
-        override fun onPermissionResult(granted: Boolean) {
-          if (granted) {
-            initLocationComponent()
-            setupGesturesListener()
-          } else {
-            activity?.finish()
-          }
-        }
-      })
-      permissionsManager.requestLocationPermissions(activity)
-    }
+    onMapReady()
   }
 
   private fun onMapReady() {
+    annotationApi = mapView?.annotations!!
+    pointAnnotationManager = annotationApi.createPointAnnotationManager()
+
     mapView?.getMapboxMap()?.setCamera(
       CameraOptions.Builder()
         .zoom(14.0)
@@ -132,23 +108,6 @@ class SecondFragment : Fragment() {
     }
 
     mapView?.getMapboxMap()?.addOnMapLongClickListener(onMapLongClickListener)
-  }
-
-  private val onMapLongClickListener = OnMapLongClickListener {
-    val image = Util.getMarker(this.requireContext())
-
-    // Save new location and set marker
-    file = File(context?.filesDir, getString(R.string.home_location))
-    file.writeText("${it.latitude()},${it.longitude()}")
-
-    // Remove already existing annotation
-    mapView?.annotations?.removeAnnotationManager(pointAnnotationManager)
-    pointAnnotationManager = annotationApi.createPointAnnotationManager()
-    val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
-      .withPoint(Point.fromLngLat(it.longitude(), it.latitude()))
-      .withIconImage(image)
-    pointAnnotationManager.create(pointAnnotationOptions)
-    false
   }
 
   private fun setupGesturesListener() {
@@ -182,14 +141,11 @@ class SecondFragment : Fragment() {
     }
 
     // Check if user already has a location saved
-    file = File(context?.filesDir, getString(R.string.home_location))
-
-    // If it does, set a marker to that location
     if (file.exists()) {
       val location = file.readText().split(",").map { it.toDouble() }
       pointAnnotationManager.create(
         PointAnnotationOptions()
-          .withPoint(Point.fromLngLat(location[0], location[1]))
+          .withPoint(Point.fromLngLat(location[1], location[0]))
           .withIconImage(Util.getMarker(this.requireContext()))
       )
     }
@@ -225,6 +181,23 @@ class SecondFragment : Fragment() {
     mapView?.location
       ?.removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
     mapView?.gestures?.removeOnMoveListener(onMoveListener)
+  }
+
+  private val onMapLongClickListener = OnMapLongClickListener {
+    val image = Util.getMarker(this.requireContext())
+
+    // Save new location and set marker
+    file = File(context?.filesDir, getString(R.string.home_location))
+    file.writeText("${it.latitude()},${it.longitude()}")
+
+    // Remove already existing annotation
+    mapView?.annotations?.removeAnnotationManager(pointAnnotationManager)
+    pointAnnotationManager = annotationApi.createPointAnnotationManager()
+    val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+      .withPoint(Point.fromLngLat(it.longitude(), it.latitude()))
+      .withIconImage(image)
+    pointAnnotationManager.create(pointAnnotationOptions)
+    false
   }
 
   override fun onDestroyView() {

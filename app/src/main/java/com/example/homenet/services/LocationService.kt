@@ -49,7 +49,7 @@ class LocationService : Service() {
           callback,
           Looper.getMainLooper()
         )
-        locationEngine.getLastLocation(callback);
+        locationEngine.getLastLocation(callback)
       } catch (e: InterruptedException) {
         // Restore interrupt status.
         Thread.currentThread().interrupt()
