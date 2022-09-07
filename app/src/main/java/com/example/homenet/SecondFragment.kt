@@ -5,17 +5,16 @@ import android.content.Intent
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.fragment.app.Fragment
 import com.example.homenet.databinding.FragmentSecondBinding
 import com.example.homenet.services.LocationService
 import com.example.homenet.utils.Util
-import com.mapbox.android.core.location.*
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -53,8 +52,6 @@ class SecondFragment : Fragment() {
   // This property is only valid between onCreateView and
   // onDestroyView.
   private val binding get() = _binding!!
-
-  private var locationEngine: LocationEngine? = null
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -203,7 +200,6 @@ class SecondFragment : Fragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    locationEngine = null
     mapView?.location
       ?.removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
     mapView?.location
