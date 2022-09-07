@@ -1,5 +1,6 @@
 package com.example.homenet.utils
 
+import android.Manifest
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -23,6 +24,10 @@ import kotlin.math.sqrt
 
 class Util {
   companion object {
+    var PERMISSIONS = arrayOf(
+      Manifest.permission.ACCESS_FINE_LOCATION,
+      Manifest.permission.ACCESS_COARSE_LOCATION
+    )
 
     fun locationBuilder(): LocationEngineRequest {
       return LocationEngineRequest.Builder(10000)
