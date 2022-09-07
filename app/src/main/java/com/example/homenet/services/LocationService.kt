@@ -1,6 +1,7 @@
 package com.example.homenet.services
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import com.example.homenet.MainActivity
 import com.example.homenet.utils.LocationEngineCallback
 import com.example.homenet.utils.Util
 import com.mapbox.android.core.location.*
+import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.common.TAG
 
 class LocationService : Service() {
@@ -27,6 +29,7 @@ class LocationService : Service() {
 
   private inner class ServiceHandler(looper: Looper) : Handler(looper) {
 
+    @SuppressLint("MissingPermission") // This is already implemented on line 40
     override fun handleMessage(msg: Message) {
       // Normally we would do some work here, like download a file.
       // For our sample, we just sleep for 5 seconds.
@@ -34,14 +37,10 @@ class LocationService : Service() {
         .getBestLocationEngine(this@LocationService.applicationContext)
 
       try {
-        if (ActivityCompat.checkSelfPermission(
-            this@LocationService.applicationContext,
-            Manifest.permission.ACCESS_FINE_LOCATION
-          ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            this@LocationService.applicationContext,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-          ) != PackageManager.PERMISSION_GRANTED
-        ) { return }
+        if (PermissionsManager.areLocationPermissionsGranted(
+            this@LocationService.applicationContext
+          ))
+        { return }
 
         Log.d(TAG, "Creating location engine")
         locationEngine.requestLocationUpdates(
