@@ -1,7 +1,6 @@
 package com.example.homenet.utils
 
 import android.Manifest
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -14,7 +13,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.example.homenet.R
-import com.example.homenet.services.LocationService
 import com.mapbox.android.core.location.LocationEngineRequest
 import com.mapbox.common.TAG
 import java.io.File
@@ -30,10 +28,10 @@ class Util {
     )
 
     fun locationBuilder(): LocationEngineRequest {
-      return LocationEngineRequest.Builder(10000)
+      return LocationEngineRequest.Builder(1000)
         .setFastestInterval(100)
         .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-        .setMaxWaitTime(100)
+        .setMaxWaitTime(5000)
         .build()
     }
 
