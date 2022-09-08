@@ -29,7 +29,6 @@ class LocationService : Service() {
 
   private inner class ServiceHandler(looper: Looper) : Handler(looper) {
 
-    @SuppressLint("MissingPermission") // This is already implemented on line 40
     override fun handleMessage(msg: Message) {
       // Normally we would do some work here, like download a file.
       // For our sample, we just sleep for 5 seconds.
@@ -37,16 +36,20 @@ class LocationService : Service() {
         .getBestLocationEngine(this@LocationService.applicationContext)
 
       try {
-        if (PermissionsManager.areLocationPermissionsGranted(
-            this@LocationService.applicationContext
-          ))
-        { return }
+        if (ActivityCompat.checkSelfPermission(
+            this@LocationService.applicationContext,
+            Manifest.permission.ACCESS_FINE_LOCATION
+          ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            this@LocationService.applicationContext,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+          ) != PackageManager.PERMISSION_GRANTED
+        ) { throw InterruptedException() }
 
         Log.d(TAG, "Creating location engine")
         locationEngine.requestLocationUpdates(
           Util.locationBuilder(),
           callback,
-          Looper.getMainLooper()
+          serviceLooper
         )
         locationEngine.getLastLocation(callback)
       } catch (e: InterruptedException) {
@@ -56,7 +59,6 @@ class LocationService : Service() {
 
       // Stop the service using the startId, so that we don't stop
       // the service in the middle of handling another job
-      stopSelf(msg.arg1)
     }
   }
 
@@ -65,7 +67,6 @@ class LocationService : Service() {
     // separate thread because the service normally runs in the process's
     // main thread, which we don't want to block.  We also make it
     // background priority so CPU-intensive work will not disrupt our UI.
-    Log.d(TAG, "Created service")
     HandlerThread("ServiceStartArguments", Process.THREAD_PRIORITY_BACKGROUND).apply {
       start()
 
