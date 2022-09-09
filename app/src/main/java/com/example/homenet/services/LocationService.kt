@@ -7,10 +7,12 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.*
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.example.homenet.utils.Util
 import com.google.android.gms.location.*
+import java.io.FileNotFoundException
 import java.util.*
 
 class LocationService : Service() {
@@ -28,6 +30,7 @@ class LocationService : Service() {
   override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
     super.onStartCommand(intent, flags, startId)
     startTimer()
+
     return START_STICKY
   }
 
@@ -37,29 +40,37 @@ class LocationService : Service() {
   }
 
   private fun startTimer() {
-    val timer = Timer()
+    var timer: Timer? = Timer()
     val timerTask = object : TimerTask() {
       override fun run() {
-        if (latitude != 0.0 && longitude != 0.0) {
+        try {
           if (Util.arePointsNear(
               arrayOf(latitude, longitude),
               Util.getHomeLocation(this@LocationService.applicationContext).toTypedArray()
-            )) {
-            Util.sendVicinityNotification(this@LocationService.applicationContext)
+            )) { Util.sendVicinityNotification(this@LocationService.applicationContext) }
+        } catch (error: FileNotFoundException) {
+          ContextCompat.getMainExecutor(this@LocationService.applicationContext).execute {
+            Toast.makeText(
+              this@LocationService.applicationContext,
+              "Please set your home location first",
+              Toast.LENGTH_SHORT
+            ).show()
           }
+          timer?.cancel()
+          timer = null
         }
       }
     }
 
-    timer.schedule(
-      timerTask,
-      0,
-      Util.LOCATION_INTERVAL
-    )
+    if (timer != null)
+      timer?.schedule(
+        timerTask,
+        0,
+        Util.LOCATION_INTERVAL
+      )
   }
 
   private fun requestLocationUpdates() {
-
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     val permission = ContextCompat.checkSelfPermission(
       this,

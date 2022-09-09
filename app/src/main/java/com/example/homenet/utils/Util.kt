@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.mapbox.common.TAG
 import java.io.File
+import java.io.FileNotFoundException
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sqrt
@@ -49,6 +50,9 @@ class Util {
 
     fun getHomeLocation(context: Context): List<Double> {
       val file = File(context.filesDir, context.getString(R.string.home_location))
+      if (!file.exists())
+        throw FileNotFoundException()
+
       return file.readText().split(",").map { it.toDouble() }
     }
 
