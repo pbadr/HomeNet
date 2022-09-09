@@ -66,8 +66,8 @@ class Util {
     }
 
     fun sendVicinityNotification(context: Context) {
-//      if (!isMobileDataOn(context))
-//        return
+      if (!isMobileDataOn(context))
+        return
 
       val notificationBuilder = NotificationCompat.Builder(context, "VN_01")
         .setSmallIcon(R.drawable.ic_notification)
