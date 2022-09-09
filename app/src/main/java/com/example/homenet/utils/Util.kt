@@ -69,7 +69,7 @@ class Util {
         .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle("You are at home!")
         .setContentText("You might need to change to WiFi")
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "CH_VN"
