@@ -13,7 +13,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.example.homenet.R
-import com.mapbox.android.core.location.LocationEngineRequest
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
 import com.mapbox.common.TAG
 import java.io.File
 import kotlin.math.abs
@@ -22,17 +23,19 @@ import kotlin.math.sqrt
 
 class Util {
   companion object {
+
+    const val LOCATION_INTERVAL: Long = 60000 // 1 minute
+
     var PERMISSIONS = arrayOf(
       Manifest.permission.ACCESS_FINE_LOCATION,
       Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-    fun locationBuilder(): LocationEngineRequest {
-      return LocationEngineRequest.Builder(1000)
-        .setFastestInterval(100)
-        .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-        .setMaxWaitTime(5000)
-        .build()
+    fun locationRequest(): LocationRequest {
+      return LocationRequest.create()
+        .setInterval(LOCATION_INTERVAL)
+        .setMaxWaitTime(LOCATION_INTERVAL)
+        .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
     }
 
     fun getMarker(context: Context): Bitmap {
