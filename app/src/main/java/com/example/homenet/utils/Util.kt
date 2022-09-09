@@ -26,6 +26,7 @@ class Util {
   companion object {
 
     const val LOCATION_INTERVAL: Long = 60000 // 1 minute
+    const val RADIUS_IN_KM: Double = 0.05
 
     var PERMISSIONS = arrayOf(
       Manifest.permission.ACCESS_FINE_LOCATION,
@@ -62,7 +63,7 @@ class Util {
       val dx = abs(centerPoint[1] - checkPoint[1]) * kx
       val dy = abs(centerPoint[0] - checkPoint[0]) * ky
 
-      return sqrt(dx * dx + dy * dy) <= 0.05
+      return sqrt(dx * dx + dy * dy) <= RADIUS_IN_KM
     }
 
     fun sendVicinityNotification(context: Context) {
