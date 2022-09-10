@@ -15,6 +15,7 @@
         android:theme="@style/Theme.HomeNet"
         tools:targetApi="31">
         <service android:name=".services.LocationService" />
+        <receiver android:name=".notification.VicinityNotification" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -3,7 +3,9 @@ package com.example.homenet.utils
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
@@ -13,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.example.homenet.R
+import com.example.homenet.notification.VicinityNotification
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.mapbox.common.TAG
@@ -25,8 +28,8 @@ import kotlin.math.sqrt
 class Util {
   companion object {
 
-    const val LOCATION_INTERVAL: Long = 60000 // 1 minute
-    const val RADIUS_IN_KM: Double = 0.05
+    const val LOCATION_INTERVAL: Long = 1000 // 1 minute
+    private const val RADIUS_IN_KM: Double = 0.05
 
     var PERMISSIONS = arrayOf(
       Manifest.permission.ACCESS_FINE_LOCATION,
@@ -67,8 +70,9 @@ class Util {
     }
 
     fun sendVicinityNotification(context: Context) {
-      if (!isMobileDataOn(context))
-        return
+      Log.d("MOBILE_DATA", isMobileDataOn(context).toString())
+//      if (!isMobileDataOn(context))
+//        return
 
       val notificationBuilder = NotificationCompat.Builder(context, "VN_01")
         .setSmallIcon(R.drawable.ic_notification)
@@ -88,6 +92,15 @@ class Util {
           context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
       }
+
+      // Build notification action button
+      val vicinityIntent = Intent(context, VicinityNotification::class.java).apply {
+        action = "ACTION_VICINITY"
+      }
+      val vicinityPendingIntent: PendingIntent =
+        PendingIntent.getBroadcast(context, 0 , vicinityIntent, 0)
+      notificationBuilder.addAction(R.drawable.red_marker, "SWITCH", vicinityPendingIntent)
+
 
       Log.d(TAG, "Sending notification")
       with(NotificationManagerCompat.from(context)) {
