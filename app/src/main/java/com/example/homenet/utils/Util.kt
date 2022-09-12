@@ -10,12 +10,12 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.example.homenet.R
-import com.example.homenet.notification.VicinityNotification
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.mapbox.common.TAG
@@ -69,16 +69,32 @@ class Util {
       return sqrt(dx * dx + dy * dy) <= RADIUS_IN_KM
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     fun sendVicinityNotification(context: Context) {
       Log.d("MOBILE_DATA", isMobileDataOn(context).toString())
 //      if (!isMobileDataOn(context))
 //        return
+      val settingsIntent = Intent(Settings.ACTION_SETTINGS)
+      settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+      val settingsPendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        PendingIntent.getActivity(
+          context,
+          0,
+          settingsIntent,
+          PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+      } else {
+        TODO("VERSION.SDK_INT < M")
+      }
 
       val notificationBuilder = NotificationCompat.Builder(context, "VN_01")
         .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle("You are at home!")
-        .setContentText("You might need to change to WiFi")
+        .setContentText("Tap to disable data from settings")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setFullScreenIntent(settingsPendingIntent, true)
+        .setAutoCancel(true)
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "CH_VN"
@@ -92,14 +108,6 @@ class Util {
           context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
       }
-
-      // Build notification action button
-      val vicinityIntent = Intent(context, VicinityNotification::class.java).apply {
-        action = "ACTION_VICINITY"
-      }
-      val vicinityPendingIntent: PendingIntent =
-        PendingIntent.getBroadcast(context, 0 , vicinityIntent, 0)
-      notificationBuilder.addAction(R.drawable.red_marker, "SWITCH", vicinityPendingIntent)
 
 
       Log.d(TAG, "Sending notification")
