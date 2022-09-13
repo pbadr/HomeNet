@@ -74,8 +74,9 @@ class Util {
     @RequiresApi(Build.VERSION_CODES.M)
     fun sendVicinityNotification(context: Context) {
       Log.d("MOBILE_DATA", isMobileDataOn(context).toString())
-//      if (!isMobileDataOn(context))
-//        return
+      if (!isMobileDataOn(context))
+        return
+      
       val settingsIntent = Intent(Settings.ACTION_SETTINGS)
       settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
