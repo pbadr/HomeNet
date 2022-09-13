@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -117,13 +119,21 @@ class Util {
     }
 
     private fun isMobileDataOn(context: Context): Boolean {
-      val mobileData: Int = Settings.Global.getInt(
-        context.contentResolver,
-        "mobile_data",
-        1
-      )
+      var isOn = false
+      val connectivityManager =
+          context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-      return mobileData == 1
+      connectivityManager.apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+          getNetworkCapabilities(connectivityManager.activeNetwork)?.apply {
+            isOn = hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) or
+                    !hasTransport((NetworkCapabilities.TRANSPORT_WIFI))
+          }
+        else
+          isOn = activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
+      }
+
+      return isOn
     }
   }
 }
